@@ -1,0 +1,45 @@
+{% extends "core/base.html" %}
+
+{% block title %}Log In{% endblock title %}
+
+{% block content %}
+<div class="pt-10 lg:pt-20 text-center">
+    <h1 class="text-3xl lg:text-6xl text-white">Log In</h1>
+</div>
+
+<form class="lg:w-1/4 px-4 mx-auto mt-10" method="POST" action="{% url 'login' %}">
+    {% csrf_token %}
+    
+    <div class="mb-6 block text-left">
+        <label class="block text-white font-medium">Username</label>
+        <input type="text" name="username" class="w-full mt-2 px-4 py-2 rounded-xl text-gray-900" />
+    </div>
+    
+    <div class="mb-6 block text-left">
+        <label class="block text-white font-medium">Password</label>
+        <input type="password" name="password" class="w-full mt-2 px-4 py-2 rounded-xl text-gray-900" />
+    </div>
+
+    {% if form.errors %}
+        {% for error in form.non_field_errors %}
+            <div class="mb-5 p-4 rounded-xl bg-red-500 text-white font-medium shadow-md animate-pulse">
+                <p>{{ error|escape }}</p>
+            </div>
+        {% endfor %}
+
+        {% for field in form %}
+            {% for error in field.errors %}
+                <div class="mb-5 p-4 rounded-xl bg-red-500 text-white font-medium shadow-md">
+                    <p class="text-xs uppercase tracking-wider font-bold opacity-75">{{ field.label }}</p>
+                    <p>{{ error|escape }}</p>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    {% endif %}
+
+    <button class="w-full btn block rounded-xl bg-teal-800 text-white font-semibold py-2 mt-4 hover:bg-teal-700 transition duration-200">
+        Log In
+    </button>
+    
+</form>
+{% endblock content %}
