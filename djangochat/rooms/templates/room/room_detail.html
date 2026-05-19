@@ -33,7 +33,7 @@
 
 <div class="lg:w-2/4 mx-4 lg:mx-auto mt-6 p-4 bg-white rounded-xl shadow-md">
     <form action="#" method="POST" class="flex items-center">
-        <input type="text" name="content" class="flex-1 mr-3 px-4 py-3 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 border border-transparent focus:bg-white transition-all" placeholder="Your Message..." id="chat-message">
+        <input type="text" name="content" class="flex-1 mr-3 px-4 py-3 bg-gray-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 border border-transparent focus:bg-white transition-all" placeholder="Your Message..." id="chat-message-input">
         
         <button class="px-5 py-3 rounded-xl font-semibold text-white bg-teal-600 hover:bg-teal-700 transition-colors shrink-0" id="chat-message-submit">
             Submit
@@ -46,9 +46,12 @@
 {% block script %}
 
 {{ room.slug|json_script:"json-roomname" }}
+{{ user.username|json_script:"json-username" }}
 
 <script>
     const roomName = JSON.parse(document.getElementById("json-roomname").textContent)
+    const userName = JSON.parse(document.getElementById("json-username").textContent)
+
     const chatSocket = new WebSocket(
         'ws://'
         + window.location.host
@@ -58,14 +61,42 @@
     );
 
     chatSocket.onmessage = function(e) {
-        console.log("onmessage")
+        console.log("onmessage");
+
+        const data = JSON.parse(e.data);
+
+        if (data.message) {
+            let html = '<div class="p-4 rounded-xl bg-gray-200">';
+            html += '<p class="font-semibold">' + data.username + '</p>';
+            html += '<p>' + data.message + '</p></div>';
+            
+            document.querySelector("#chat-messages").innerHTML += html
+        } else {
+            alert("The message was empty")
+        }
     }
 
     chatSocket.onclose = function(e) {
         console.log("onclose")
     }
 
+    //
 
+    document.querySelector("#chat-message-submit").onclick = function(e) {
+        e.preventDefault();
+
+        const messageInputDOM = document.querySelector("#chat-message-input");
+        const message = messageInputDOM.value;
+
+        chatSocket.send(JSON.stringify({
+            'message': message,
+            'username': userName,
+            'room': roomName
+        }));
+
+        messageInputDOM.value = "";
+        return false;
+    }
 
 </script>
 {% endblock script %}
