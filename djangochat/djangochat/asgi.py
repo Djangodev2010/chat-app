@@ -9,13 +9,12 @@ from rooms import routing
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'djangochat.settings')
 
-application = {
+application = ProtocolTypeRouter({
     'http': get_asgi_application(),
-    'websockets': AuthMiddlewareStack(
+    'websocket': AuthMiddlewareStack(
         URLRouter(
             routing.websocket_urlpatterns
         )
     )
-}
-
+})
 
